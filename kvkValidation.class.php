@@ -9,13 +9,23 @@ class kvkValidation {
 
   public function check($KvKnummer) {
     $response = $this->GetData($KvKnummer);
-    echo "<pre>Raw Responde:\n".var_export($response,true)."</pre>";
+
+    //DEBUG    
+    //echo "<pre>Raw Responde:\n".var_export($response,true)."</pre>";
+    //DEBUG
+
     // Note: Responses are in JSON HAL format
     // http://stateless.co/hal_specification.html
     // TODO: Research if a HAL library adds anything for our purposes
     // But I suppose, for this simple task at hand, it does not.
-    $data = json_decode($response);
-    echo "<pre>JSON Decoded Response:\n".var_export($data,true)."</pre>";
+    $data = json_decode($response,true); 
+
+    //DEBUG
+    //echo "<pre>JSON Decoded Response:\n".var_export($data, true)."</pre>";
+    //DEBUG
+
+    echo "<pre>Company Info:\n".var_export($data['_embedded']['rechtspersoon'][0],true)."</pre>";
+
   }
 
 
