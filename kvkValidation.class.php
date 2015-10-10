@@ -13,7 +13,7 @@ class kvkValidation {
   public function reset() {
     $this->data  = NULL;
     $this->KvKvalid = NULL;
-    $this->KeyError = false;
+    $this->KeyError = NULL;
   }
 
   public function getData() {
@@ -41,9 +41,15 @@ class kvkValidation {
 
   public function check($KvKnummer) {
     $this->reset();
-    if (!(strlen($KvKnummer)==8)) {
+    //KvK nummers kunnen met 0 beginnen
+    //Niet geverifieerde bron: https://www.higherlevel.nl/forum/index.php?board=50;action=display;threadid=28479
+    //Response wijkt af met langere nummers, een array met een entry met het
+    //falende nummer
+    if (!$KvKnummer || $KvKnummer > 99999999( {
       $this->KvKvalid = false;
+      return false;
     }
+    $KvKnummer = sprintf("%08d",$KvKnummer);
 
     $response = $this->QueryOverheidIO($KvKnummer);
 
@@ -66,17 +72,18 @@ class kvkValidation {
        $this->data = $data['_embedded']['rechtspersoon'][0];
        $this->KvKvalid = true;
        $this->KeyError = false;
-    } else if (isset($this->data['error'])) {  
-      if (strstr($this->data['error'], "niet gevonden")) {
+    } else if (isset($data['error'])) {  
+      if (strstr($data['error'], "niet gevonden")) {
        $this->KvKvalid = false;
        $this->KeyError = false;
-      } else if (strstr($this->data['error'], "Geen geldige API key")) {
+      } else if (strstr($data['error'], "Geen geldige API")) {
        $this->KeyError = true;
+       
       } else {
-        //unknown error
+        //echo "unknown error!"; // TODO : keep error state flag
       }
     } else {
-      //unkown response
+      //echo "unkown response!"; // TODO : keep error state flag
     }
     return $this->KvKvalid;
   }
