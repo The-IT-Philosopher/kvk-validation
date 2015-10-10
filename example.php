@@ -15,6 +15,10 @@ echo "\nKvk Valid:";
 var_export($kvkValidation->KvKvalid);
 echo "\nKey Error:";
 var_export($kvkValidation->KeyError);
+echo "\nData:";
+var_export($kvkValidation->getData());
+
+
 
 echo "</pre></td><td><pre>";
 
@@ -25,6 +29,9 @@ echo "\nKvk Valid:";
 var_export($kvkValidation->KvKvalid);
 echo "\nKey Error:";
 var_export($kvkValidation->KeyError);
+echo "\nData:";
+var_export($kvkValidation->getData());
+
 
 echo "</pre></td></tr><tr><td><pre>";
 
@@ -35,6 +42,9 @@ echo "\nKvk Valid:";
 var_export($kvkValidation->KvKvalid);
 echo "\nKey Error:";
 var_export($kvkValidation->KeyError);
+echo "\nData:";
+var_export($kvkValidation->getData());
+
 
 echo "</pre></td><td><pre>";
 
@@ -47,6 +57,9 @@ echo "\nKvk Valid:";
 var_export($kvkValidation->KvKvalid);
 echo "\nKey Error:";
 var_export($kvkValidation->KeyError);
+echo "\nData:";
+var_export($kvkValidation->getData());
+
 
 echo "</td></tr></table>";
 

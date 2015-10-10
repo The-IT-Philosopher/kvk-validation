@@ -2,7 +2,7 @@
 class kvkValidation {
 	const ServiceURL = "https://overheid.io/api/kvk/";
   private $APIKEY;
-  private $kvkInfo;
+  private $data;
   private $KvKvalid;
   private $KeyValid;
 
@@ -11,10 +11,32 @@ class kvkValidation {
   }
 
   public function reset() {
-    $this->kvkInfo  = NULL;
+    $this->data  = NULL;
     $this->KvKvalid = NULL;
     $this->KeyError = false;
+  }
 
+  public function getData() {
+    if (!(isset($this->data))) return null;
+
+    $data = array();
+    $data['kvk_nummer']        = $this->data['dossiernummer'];
+    $data['organisation_name'] = $this->data['handelsnaam'];
+    $data['adress_street']     = $this->data['straat'];
+
+    // Contatenating number and suffix
+    $data['adress_number']     = $this->data['huisnummer'] .$this->data['huisnummertoevoeging'];
+
+    // formatting postal code, as the data provided by OpenKVK.io appears to 
+    // leave the space between the numbers and letters out.
+    if (strlen($this->data['postcode'])==6) {
+      $data['adress_postalcode'] = substr($this->data['postcode'],0,4) . " " . substr($this->data['postcode'],4,2);
+    } else {
+      $data['adress_postalcode'] = $this->data['postcode'];
+    }
+
+    $data['adress_city']       = $this->data['plaats'];
+    return $data;
   }
 
   public function check($KvKnummer) {
@@ -23,7 +45,7 @@ class kvkValidation {
       $this->KvKvalid = false;
     }
 
-    $response = $this->GetData($KvKnummer);
+    $response = $this->QueryOverheidIO($KvKnummer);
 
     //DEBUG    
     //echo "<pre>Raw Responde:\n".var_export($response,true)."</pre>";
@@ -33,25 +55,25 @@ class kvkValidation {
     // http://stateless.co/hal_specification.html
     // TODO: Research if a HAL library adds anything for our purposes
     // But I suppose, for this simple task at hand, it does not.
-    $data = json_decode($response,true); 
+    $this->data = json_decode($response,true); 
 
     //DEBUG
-    //echo "<pre>JSON Decoded Response:\n".var_export($data, true)."</pre>";
+    //echo "<pre>JSON Decoded Response:\n".var_export($this->data, true)."</pre>";
     //DEBUG
 
-    //echo "<pre>Company Info:\n".var_export($data['_embedded']['rechtspersoon'][0],true)."</pre>";
-    if (isset($data['_embedded']['rechtspersoon'][0])) { echo "OK!!!";
-       $kvkInfo = $data['_embedded']['rechtspersoon'][0];
+    //echo "<pre>Company Info:\n".var_export($this->data['_embedded']['rechtspersoon'][0],true)."</pre>";
+    if (isset($this->data['_embedded']['rechtspersoon'][0])) { echo "OK!!!";
+       $this->data = $this->data['_embedded']['rechtspersoon'][0];
        $this->KvKvalid = true;
        $this->KeyError = false;
     }
-    if (isset($data['error'])) {  echo "ERROR!!!";
-      if (strstr($data['error'], "niet gevonden")) {
+    if (isset($this->data['error'])) {  echo "ERROR!!!";
+      if (strstr($this->data['error'], "niet gevonden")) {
        $this->KvKvalid = false;
        $this->KeyError = false;
      } 
-      if (isset($data['error'])) {
-        if (strstr($data['error'], "Geen geldige API key")) {
+      if (isset($this->data['error'])) {
+        if (strstr($this->data['error'], "Geen geldige API key")) {
          $this->KeyError = true;
        }       
       }
@@ -63,7 +85,7 @@ class kvkValidation {
     return $this->$name;
   }
 
-  function GetData($KvKnummer){
+  private function QueryOverheidIO($KvKnummer){
     $ch = curl_init();
 
 //DEBUG
