@@ -22,20 +22,20 @@ class kvkValidation {
     $data = array();
     $data['kvk_nummer']        = $this->data['dossiernummer'];
     $data['organisation_name'] = $this->data['handelsnaam'];
-    $data['adress_street']     = $this->data['straat'];
+    $data['address_street']     = $this->data['straat'];
 
     // Contatenating number and suffix
-    $data['adress_number']     = $this->data['huisnummer'] .$this->data['huisnummertoevoeging'];
+    $data['address_number']     = $this->data['huisnummer'] .$this->data['huisnummertoevoeging'];
 
     // formatting postal code, as the data provided by OpenKVK.io appears to 
     // leave the space between the numbers and letters out.
     if (strlen($this->data['postcode'])==6) {
-      $data['adress_postalcode'] = substr($this->data['postcode'],0,4) . " " . substr($this->data['postcode'],4,2);
+      $data['address_postalcode'] = substr($this->data['postcode'],0,4) . " " . substr($this->data['postcode'],4,2);
     } else {
-      $data['adress_postalcode'] = $this->data['postcode'];
+      $data['address_postalcode'] = $this->data['postcode'];
     }
 
-    $data['adress_city']       = $this->data['plaats'];
+    $data['address_city']       = $this->data['plaats'];
     return $data;
   }
 
