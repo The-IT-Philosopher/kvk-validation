@@ -17,7 +17,7 @@ class kvkValidation {
   }
 
   public function getData() {
-    if (!(isset($this->data))) return null;
+    if (!$this->data) return null;
 
     $data = array();
     $data['kvk_nummer']        = $this->data['dossiernummer'];
@@ -55,28 +55,28 @@ class kvkValidation {
     // http://stateless.co/hal_specification.html
     // TODO: Research if a HAL library adds anything for our purposes
     // But I suppose, for this simple task at hand, it does not.
-    $this->data = json_decode($response,true); 
+    $data = json_decode($response,true); 
 
     //DEBUG
-    //echo "<pre>JSON Decoded Response:\n".var_export($this->data, true)."</pre>";
+    //echo "<pre>JSON Decoded Response:\n".var_export($data, true)."</pre>";
     //DEBUG
 
     //echo "<pre>Company Info:\n".var_export($this->data['_embedded']['rechtspersoon'][0],true)."</pre>";
-    if (isset($this->data['_embedded']['rechtspersoon'][0])) { echo "OK!!!";
-       $this->data = $this->data['_embedded']['rechtspersoon'][0];
+    if (isset($data['_embedded']['rechtspersoon'][0])) { 
+       $this->data = $data['_embedded']['rechtspersoon'][0];
        $this->KvKvalid = true;
        $this->KeyError = false;
-    }
-    if (isset($this->data['error'])) {  echo "ERROR!!!";
+    } else if (isset($this->data['error'])) {  
       if (strstr($this->data['error'], "niet gevonden")) {
        $this->KvKvalid = false;
        $this->KeyError = false;
-     } 
-      if (isset($this->data['error'])) {
-        if (strstr($this->data['error'], "Geen geldige API key")) {
-         $this->KeyError = true;
-       }       
+      } else if (strstr($this->data['error'], "Geen geldige API key")) {
+       $this->KeyError = true;
+      } else {
+        //unknown error
       }
+    } else {
+      //unkown response
     }
     return $this->KvKvalid;
   }
