@@ -2,12 +2,27 @@
 class kvkValidation {
 	const ServiceURL = "https://overheid.io/api/kvk/";
   private $APIKEY;
+  private $kvkInfo;
+  private $KvKvalid;
+  private $KeyValid;
 
   public function __construct($APIKEY) { 
     $this->APIKEY=$APIKEY;
   }
 
+  public function reset() {
+    $this->kvkInfo  = NULL;
+    $this->KvKvalid = NULL;
+    $this->KeyError = false;
+
+  }
+
   public function check($KvKnummer) {
+    $this->reset();
+    if (!(strlen($KvKnummer)==8)) {
+      $this->KvKvalid = false;
+    }
+
     $response = $this->GetData($KvKnummer);
 
     //DEBUG    
@@ -24,10 +39,29 @@ class kvkValidation {
     //echo "<pre>JSON Decoded Response:\n".var_export($data, true)."</pre>";
     //DEBUG
 
-    echo "<pre>Company Info:\n".var_export($data['_embedded']['rechtspersoon'][0],true)."</pre>";
-
+    //echo "<pre>Company Info:\n".var_export($data['_embedded']['rechtspersoon'][0],true)."</pre>";
+    if (isset($data['_embedded']['rechtspersoon'][0])) { echo "OK!!!";
+       $kvkInfo = $data['_embedded']['rechtspersoon'][0];
+       $this->KvKvalid = true;
+       $this->KeyError = false;
+    }
+    if (isset($data['error'])) {  echo "ERROR!!!";
+      if (strstr($data['error'], "niet gevonden")) {
+       $this->KvKvalid = false;
+       $this->KeyError = false;
+     } 
+      if (isset($data['error'])) {
+        if (strstr($data['error'], "Geen geldige API key")) {
+         $this->KeyError = true;
+       }       
+      }
+    }
+    return $this->KvKvalid;
   }
 
+  public function __get($name) {
+    return $this->$name;
+  }
 
   function GetData($KvKnummer){
     $ch = curl_init();
