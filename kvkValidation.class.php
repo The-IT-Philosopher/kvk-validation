@@ -45,7 +45,7 @@ class kvkValidation {
     //Niet geverifieerde bron: https://www.higherlevel.nl/forum/index.php?board=50;action=display;threadid=28479
     //Response wijkt af met langere nummers, een array met een entry met het
     //falende nummer
-    if (!$KvKnummer || $KvKnummer > 99999999( {
+    if (!$KvKnummer || $KvKnummer > 99999999) {
       $this->KvKvalid = false;
       return false;
     }
